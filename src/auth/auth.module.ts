@@ -22,7 +22,7 @@ import { LocalStrategy } from './passport/local.strategy';
       inject : [ConfigService]
     })
   ],
-  providers: [AuthService, LocalStrategy, LocalAuthGuard, JwtStrategy],
+  providers: [AuthService, LocalStrategy, LocalAuthGuard, JwtStrategy, UsersModule],
   exports : [AuthService],
   controllers : [AuthController]
 })

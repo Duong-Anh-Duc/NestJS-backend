@@ -15,14 +15,29 @@ export class UsersService {
     return hash
   }
   async create(createUserDto : CreateUserDto){
-   
     const hashPassWord = await this.hashPassWord(createUserDto.password)
-    let user = await this.userModel.create({
-      email : createUserDto.email, password : hashPassWord, name : createUserDto.name, 
-    })
-   return user;
+    let user = await this.userModel.create({...createUserDto, password : hashPassWord})
+    return {
+      statusCode : 201,
+      message : "Create a new User",
+      data : {
+        _id : createUserDto.company._id,
+        cretedAt : user.createdAt
+      }
+    }
   }
-
+  async register(createUserDto : CreateUserDto){
+    const hashPassWord = await this.hashPassWord(createUserDto.password)
+    let user = await this.userModel.create({...createUserDto, password : hashPassWord, role : "USER"})
+    return {
+      statusCode : 201,
+      message : "Register a new user",
+      data : {
+        _id : user._id,
+        createdAt : user.createdAt
+      }
+    }
+  }
   findAll() {
     return `This action returns all users`;
   }
