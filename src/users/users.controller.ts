@@ -1,37 +1,44 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Public, ResponseMessage, User } from 'src/auth/decorater/customize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { IUser } from './user.interface';
 import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  @UseGuards(JwtAuthGuard)
   @Post()
+  @ResponseMessage("Create a new User")
   create(
-  @Body() createUserDto : CreateUserDto
+  @Body() createUserDto : CreateUserDto, @User() user : IUser
   ) {
-    return this.usersService.create(createUserDto);
+    return this.usersService.create(createUserDto, user);
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  @ResponseMessage("Fetch user with paginate")
+  findAll(
+    @Query("page") currentPage : string,
+    @Query("limit") limit : string,
+    @Query() qs : string
+  ) {
+    return this.usersService.findAll(+currentPage, +limit , qs);
   }
-
+  @Public()
   @Get(':id')
+  @ResponseMessage("Fetch user by id")
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
-
   @Patch()
-  update(@Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(updateUserDto);
+  @ResponseMessage("Update a User")
+  update(@Body() updateUserDto: UpdateUserDto, @User() user : IUser) {
+    return this.usersService.update(updateUserDto, user);
   }
-
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  @ResponseMessage("Delete a User")
+  remove(@Param('id') id: string, @User() user : IUser) {
+    return this.usersService.remove(id, user);
   }
 }
