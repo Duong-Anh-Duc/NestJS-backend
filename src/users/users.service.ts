@@ -54,12 +54,12 @@ export class UsersService {
       _id : id
     })
   }
-  async findAll(currentPage : number, limit : number, qs : string) {
+  async findAll(current : number, pageSize : number, qs : string) {
     const {filter, sort, population} = aqp(qs);
-    delete filter.page
-    delete filter.limit
-    let offset = (currentPage - 1) * (limit)
-    let defaultLimit = limit ? limit : 10
+    delete filter.current
+    delete filter.pageSize
+    let offset = (current - 1) * (pageSize)
+    let defaultLimit = pageSize ? pageSize : 10
     const totalItems = await this.userModel.countDocuments()
     const totalPages = Math.ceil(totalItems / defaultLimit)
     const result = await this.userModel.find(filter)
@@ -71,8 +71,8 @@ export class UsersService {
     .exec()
     return {
       meta : {
-        current: currentPage,
-        pageSize : limit,
+        current: current,
+        pageSize : pageSize,
         pages : totalPages,
         total : totalItems
       },
@@ -102,5 +102,7 @@ export class UsersService {
       _id
     }, {refreshToken})
   }
-
+  findUserByToken = async (refreshToken : string) =>{
+    return await this.userModel.findOne({refreshToken})
+}
 }

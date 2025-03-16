@@ -19,13 +19,14 @@ export class UsersController {
   @Get()
   @ResponseMessage("Fetch user with paginate")
   findAll(
-    @Query("page") currentPage : string,
-    @Query("limit") limit : string,
+    @Query("current") currentPage : string,
+    @Query("pageSize") limit : string,
     @Query() qs : string
   ) {
     return this.usersService.findAll(+currentPage, +limit , qs);
   }
   @Public()
+  
   @Get(':id')
   @ResponseMessage("Fetch user by id")
   findOne(@Param('id') id: string) {

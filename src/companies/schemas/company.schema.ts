@@ -27,6 +27,8 @@ export class Company {
         email : string;
     }
     @Prop()
+    logo : string
+    @Prop()
     createdAt : Date;
     @Prop()
     updatedAt : Date;

@@ -23,8 +23,8 @@ export class CompaniesService {
 
   async findAll(page : number, limit : number, qs : string) {
     const {filter, sort, projection, population} = aqp(qs)
-    delete filter.page
-    delete filter.limit
+    delete filter.current
+    delete filter.pageSize
     let defaultLimit = limit ? limit : 10
     let offset = (page - 1) * (limit)
     const totalItems =  await (await this.companyModel.find()).length
@@ -41,8 +41,12 @@ export class CompaniesService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} company`;
+ async findOne(id: string) {
+    let company = await this.companyModel.findOne({_id : id})
+    if(!company){
+      return "Company not found"
+    }
+    return company
   }
 
   update(id: string, updateCompanyDto: UpdateCompanyDto, user : IUser) {

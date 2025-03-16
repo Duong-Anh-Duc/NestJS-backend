@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ResponseMessage, User } from 'src/auth/decorater/customize';
+import { Public, ResponseMessage, User } from 'src/auth/decorater/customize';
 import { IUser } from 'src/users/user.interface';
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
@@ -11,19 +11,18 @@ export class CompaniesController {
 
   @Post()
   create(@Body() createCompanyDto: CreateCompanyDto, @User() user : IUser) {
-    console.log(">> check user", user)
     return this.companiesService.create(createCompanyDto, user);
   }
-
+  @Public()
   @Get()
   @ResponseMessage("List Company")
-  findAll(@Query('page') page : string, @Query('limit') limit : string, @Query() qs : string) {
-    return this.companiesService.findAll(+page, +limit, qs);
+  findAll(@Query('current') currentPage : string, @Query('pageSize') limit : string, @Query() qs : string, @Param() pa) {
+    return this.companiesService.findAll(+currentPage, +limit, qs);
   }
-
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.companiesService.findOne(+id);
+    return this.companiesService.findOne(id);
   }
 
   @Patch(':id')
