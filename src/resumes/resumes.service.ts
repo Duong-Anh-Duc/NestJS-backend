@@ -18,7 +18,7 @@ export class ResumesService {
       ...createResumeDto,
       email : user.email,
       userId : user._id,
-      
+      status : "PENDING",
       history : [
         {
           status : "PENDING",
@@ -42,13 +42,13 @@ export class ResumesService {
 
   async findAll(currentPage : number, pageSize : number, qs : string) {
    const {filter, population, sort, projection} = aqp(qs)
-   delete filter.currentPage
+   delete filter.current
    delete filter.pageSize
    let defaultLimit = pageSize ? pageSize : 10
    let offset = (currentPage - 1) * defaultLimit
    let totalItems = await this.resumeModel.countDocuments()
    let totalPage = Math.ceil(totalItems / defaultLimit)
-   let result = await this.resumeModel.find(filter).sort().populate(population).select(projection).skip(offset).limit(defaultLimit).exec()
+   let result = await this.resumeModel.find(filter).sort().skip(offset).limit(defaultLimit).populate(population).select(projection).exec()
    return {
     meta : {
       current : currentPage, // trang hiện tại
@@ -60,8 +60,21 @@ export class ResumesService {
    }
   }
   getResumeByUser = async (user : IUser) => {
-    let resumeByUser = await this.resumeModel.find({userId : user._id})
-    return resumeByUser
+
+    return await this.resumeModel.find({
+      userId : user._id,
+    })
+    .sort("-createdAt")
+    .populate([
+      {
+        path : "companyId",
+        select : {name : 1}
+      },
+      {
+        path : "jobId",
+        select : {name : 1}
+      }
+    ])
   }
   findOne(id: string) {
     if(!mongoose.Schema.Types.ObjectId){
@@ -84,9 +97,10 @@ export class ResumesService {
         }
     }
     return this.resumeModel.updateOne({_id : id}, { 
+      $set : {status : updateResumeDto.status},
       $push : {history : newHistory},
       
-      updateBy : {
+      updatedBy : {
         _id : user._id,
         email : user.email
       }

@@ -6,10 +6,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { CompaniesModule } from './companies/companies.module';
-import { UsersModule } from './users/users.module';
-import { JobsModule } from './jobs/jobs.module';
 import { FilesModule } from './files/files.module';
+import { JobsModule } from './jobs/jobs.module';
+import { PermissionsModule } from './permissions/permissions.module';
 import { ResumesModule } from './resumes/resumes.module';
+import { RolesModule } from './roles/roles.module';
+import { UsersModule } from './users/users.module';
+import { DatabasesModule } from './databases/databases.module';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -34,8 +37,12 @@ import { ResumesModule } from './resumes/resumes.module';
     JobsModule,
     FilesModule,
     ResumesModule,
+    PermissionsModule,
+    RolesModule,
+    DatabasesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+}

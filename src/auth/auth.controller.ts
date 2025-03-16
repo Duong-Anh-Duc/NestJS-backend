@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 
 import { Request, Response } from 'express';
+import { RolesService } from 'src/roles/roles.service';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { IUser } from 'src/users/user.interface';
 import { AuthService } from './auth.service';
@@ -9,7 +10,8 @@ import { LocalAuthGuard } from './local-auth.guard';
 @Controller("auth")
 export class AuthController {
   constructor(
-    private authService : AuthService
+    private authService : AuthService,
+    private rolesService : RolesService
   ) {
    
   }
@@ -28,8 +30,10 @@ export class AuthController {
   }
   @Get('/account')
   @ResponseMessage('Get user information')
-  account(@Req() req){  
-    return req.user
+  async account(@User()user : IUser){  
+    const temp = await this.rolesService.findOne(user.role._id) as any
+    user.permissions = temp.permissions
+    return {user}
   }
   @Public()
   @Get('/refresh')

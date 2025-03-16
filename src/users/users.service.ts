@@ -4,13 +4,16 @@ import aqp from 'api-query-params';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import mongoose from 'mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { USER_ROLE } from 'src/databases/sample';
+import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
 import { IUser } from './user.interface';
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel : SoftDeleteModel<UserDocument>){}
+  constructor(@InjectModel(User.name) private userModel : SoftDeleteModel<UserDocument>,
+@InjectModel(Role.name) private roleModel : SoftDeleteModel<RoleDocument>){}
    hashPassWord = (password : string) => {
     const salt = genSaltSync(10);
     const hash = hashSync(password, salt)
@@ -28,7 +31,7 @@ export class UsersService {
   async update( updateUserDto: UpdateUserDto, User : IUser) {
     let user = await this.userModel.updateOne({
       _id : updateUserDto._id
-    }, {...updateUserDto, updateBy : {
+    }, {...updateUserDto, updatedBy : {
       _id : User._id,
       email : User.email
     }})
@@ -40,10 +43,13 @@ export class UsersService {
     if(isExist){
       throw new BadRequestException(`Email : ${registerUserDto.email} đã tồn tại trên hệ thống!`);
     }
-    return this.userModel.create({...registerUserDto, password : hashPassWord, role : "USER"})
+    const userRole = await this.roleModel.findOne({name : USER_ROLE})
+    return this.userModel.create({...registerUserDto, password : hashPassWord, role : userRole?._id})
   }
   async remove(id: string, User : IUser) {
     if(!mongoose.Types.ObjectId.isValid(id)) return 'not found user'
+    const foundUser = await this.userModel.findById(id)
+    if(foundUser.email === "admin@gmail.com") throw new BadRequestException("Không thể xoá tài khoản admin")
     await this.userModel.updateOne({
       _id : id
     }, {deletedBy : {
@@ -81,18 +87,18 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    let user = await this.userModel.findOne({_id : id})
-  
-    if(!user) return {
-      message : "User not found!"
-    }
-    return user
+    if(!mongoose.Types.ObjectId.isValid(id)) return 'not found user'
+    return await this.userModel.findOne({
+      _id : id
+    }).select("-password")
+    .populate({
+    path : 'role', select : {name : 1, _id : 1}
+    })
   }
   findOneByUserName(username : string) {
    return this.userModel.findOne({
     email : username
-   })
-  
+   }).populate({path : 'role', select : {name : 1}})
   }
   isValidPassWord(password : string, hash : string){
     return compareSync(password, hash)
@@ -103,6 +109,9 @@ export class UsersService {
     }, {refreshToken})
   }
   findUserByToken = async (refreshToken : string) =>{
-    return await this.userModel.findOne({refreshToken})
+    return (await this.userModel.findOne({refreshToken})).populate({
+      path : "role",
+      select : {name : 1}
+    })
 }
 }

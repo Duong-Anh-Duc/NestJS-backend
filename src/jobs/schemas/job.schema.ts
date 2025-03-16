@@ -30,7 +30,7 @@ export class Job{
     @Prop()
     isActive : boolean 
     @Prop({type : Object})
-    updateBy: {
+    updatedBy: {
         _id : string;
         email : string;
     }

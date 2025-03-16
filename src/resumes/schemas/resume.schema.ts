@@ -35,7 +35,7 @@ export class Resume{
         email : string
     }
     @Prop({type : Object})
-    updateBy : {
+    updatedBy : {
         _id : mongoose.Schema.Types.ObjectId
         email : string
     }

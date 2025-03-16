@@ -16,7 +16,7 @@ export class ResumesController {
 
   @Get()
   @ResponseMessage('Fetch a list resume')
-  findAll(@Query('current') currentPage : string, @Query('pageSize')pageSize : string, qs : string) {
+  findAll(@Query('current') currentPage : string, @Query('pageSize')pageSize : string, @Query() qs : string) {
     return this.resumesService.findAll(+currentPage, + pageSize, qs);
   }
   @ResponseMessage('Fetch a resume')

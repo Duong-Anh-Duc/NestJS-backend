@@ -53,7 +53,7 @@ export class CompaniesService {
     return this.companyModel.updateOne({
       _id : id
     }, {...updateCompanyDto, 
-      updateBy : {
+      updatedBy : {
         _id : user._id,
         email : user.email
       }

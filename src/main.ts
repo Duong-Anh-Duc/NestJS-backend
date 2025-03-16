@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import { join } from 'path';
 import { AppModule } from "./app.module";
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { TransformInterceptor } from './core/transform.interceptor';
+import { TransformInterceptor } from './core/interceptor/transform.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService)
